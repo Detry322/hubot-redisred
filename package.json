@@ -1,0 +1,16 @@
+{
+  "name": "hubot-redisred",
+  "description": "A script that allows users to make redisred links through hubot",
+  "version": "1.0.0",
+  "author": "Jack Serrino <jserrino@gmail.com>",
+  "license": "MIT",
+  "keywords": "hubot, hubot-redisred, redisred",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Detry322/hubot-redisred.git"
+  },
+  "main": "index.coffee",
+  "dependencies": {
+    "hubot-conf": "^1.1.0"
+  }
+}
