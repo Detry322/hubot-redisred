@@ -4,6 +4,7 @@
 # Configuration:
 #   HUBOT_REDISRED_URL - The base URL for redirects, not including the API path.
 #   HUBOT_REDISRED_TOKEN - The API token to be used for the requests.
+#   HUBOT_REDISRED_PREFIX - (requires restart) The prefix to auto-expand links. "" to disable.
 #
 # Commands:
 #   hubot redisred list - list all redirects
@@ -22,17 +23,25 @@ filter = (arr, func) ->
       filtered.push item
   filtered
 
-formatRedirect = (redirect) ->
-  "#{redirect.key}: Clicks: #{redirect.clicks} | URL: #{redirect.url}"
-
-formatRedirects = (redirects) ->
-  message = "*Redirects:*"
-  for redirect in redirects
-    message += "\n" + formatRedirect(redirect)
-  message
-
 module.exports = (robot) ->
   config = require('hubot-conf')('redisred', robot)
+
+  cache = {}
+
+  formatRedirect = (redirect) ->
+    "(#{redirect.clicks} clicks) #{redirect.url}"
+
+  formatRedirects = (redirects) ->
+    message = "*Redirects:*"
+    for redirect in redirects
+      message += "\n" + formatRedirect(redirect)
+    message
+
+  formatShortlinks = (redirects) ->
+    message = ""
+    for redirect in redirects
+      message += config('prefix').toUpperCase() + " link: #{config('url')}/#{redirect.key}\n"
+    message.trim()
 
   modifyRedirects = (action, data, callback) ->
     postData = JSON.stringify(data)
@@ -58,6 +67,8 @@ module.exports = (robot) ->
           if not err and httpResponse.statusCode is 200
             try
               redirects = JSON.parse body
+              for redirect in redirects
+                cache[redirect.key] = redirect
               callback(false, redirects)
             catch error
               callback(error)
@@ -70,6 +81,7 @@ module.exports = (robot) ->
       if (err)
         res.send "Error creating redirect."
       else
+        cache[redirect.key] = redirect
         res.send "*Redirect Created:*\n" + formatRedirect(redirect)
 
   deleteRedirect = (res, key) ->
@@ -78,6 +90,7 @@ module.exports = (robot) ->
       if (err)
         res.send "Error deleting redirect."
       else
+        delete cache[key]
         res.send "Deleted redirect: #{key}"
 
   listRedirects = (res, search) ->
@@ -97,6 +110,18 @@ module.exports = (robot) ->
         filtered = filter redirects, (redirect) ->
           redirect.key == key
         res.send formatRedirect(filtered[0])
+
+  if config('prefix')
+    robot.hear ///#{config('prefix')}/([^\s+])///i, (res) ->
+      redirects = []
+      for key, value of cache
+        if ///#{config('prefix')}/#{key}(\s|$)///i.test res.message.text
+          redirects.push value
+      if redirects.length != 0
+        res.send formatShortlinks(redirects)
+
+    fetchRedirects () ->
+      # Fetch redirects so they start working immediately.
 
   robot.respond /redisred list$/i, (res) ->
     listRedirects(res, "")
