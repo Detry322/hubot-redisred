@@ -24,6 +24,7 @@ filter = (arr, func) ->
   filtered
 
 module.exports = (robot) ->
+
   config = require('hubot-conf')('redisred', robot)
 
   cache = {}
@@ -40,7 +41,7 @@ module.exports = (robot) ->
   formatShortlinks = (redirects) ->
     message = ""
     for redirect in redirects
-      message += config('prefix').toUpperCase() + " link: #{config('url')}/#{redirect.key}\n"
+      message += "Link: #{config('url')}/#{redirect.key}\n"
     message.trim()
 
   modifyRedirects = (action, data, callback) ->
@@ -74,6 +75,9 @@ module.exports = (robot) ->
               callback(error)
           else
             callback(err || httpResponse)
+
+  fetchRedirects () ->
+    # Fetch redirects so they start working immediately.
 
   createRedirect = (res, key, url) ->
     data = {key: key, url: url}
@@ -111,17 +115,14 @@ module.exports = (robot) ->
           redirect.key == key
         res.send formatRedirect(filtered[0])
 
-  if config('prefix')
-    robot.hear ///#{config('prefix')}/([^\s+])///i, (res) ->
-      redirects = []
-      for key, value of cache
-        if ///#{config('prefix')}/#{key}(\s|$)///i.test res.message.text
-          redirects.push value
-      if redirects.length != 0
-        res.send formatShortlinks(redirects)
-
-    fetchRedirects () ->
-      # Fetch redirects so they start working immediately.
+  robot.hear /.*/i, (res) ->
+    redirects = []
+    prefix = config('prefix')
+    for key, value of cache
+      if ///\b#{prefix}/#{key}\b///i.test res.message.text
+        redirects.push value
+    if config('prefix') and redirects.length != 0
+      res.send formatShortlinks(redirects)
 
   robot.respond /redisred list$/i, (res) ->
     listRedirects(res, "")

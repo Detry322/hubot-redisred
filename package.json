@@ -11,6 +11,6 @@
   },
   "main": "index.coffee",
   "dependencies": {
-    "hubot-conf": "^1.1.0"
+    "hubot-conf": "^1.1.1"
   }
 }
