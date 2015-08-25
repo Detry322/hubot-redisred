@@ -61,6 +61,7 @@ module.exports = (robot) ->
             callback(err || httpResponse)
 
   fetchRedirects = (callback) ->
+    callback = callback or () -> undefined
     robot.http(config('url') + "/admin/api/")
         .header('Accept', 'application/json')
         .header('x-access-token', config("token"))
@@ -68,6 +69,7 @@ module.exports = (robot) ->
           if not err and httpResponse.statusCode is 200
             try
               redirects = JSON.parse body
+              cache = {}
               for redirect in redirects
                 cache[redirect.key] = redirect
               callback(false, redirects)
@@ -76,8 +78,8 @@ module.exports = (robot) ->
           else
             callback(err || httpResponse)
 
-  fetchRedirects () ->
-    # Fetch redirects so they start working immediately.
+  fetchRedirects()
+  setInterval(fetchRedirects, 5*60*1000) # Fetch redirects every 5 minutes
 
   createRedirect = (res, key, url) ->
     data = {key: key, url: url}

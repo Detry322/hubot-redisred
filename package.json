@@ -1,7 +1,7 @@
 {
   "name": "hubot-redisred",
   "description": "A script that allows users to make redisred links through hubot",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "Jack Serrino <jserrino@gmail.com>",
   "license": "MIT",
   "keywords": "hubot, hubot-redisred, redisred",
