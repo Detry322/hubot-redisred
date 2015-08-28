@@ -30,7 +30,7 @@ module.exports = (robot) ->
   cache = {}
 
   formatRedirect = (redirect) ->
-    "(#{redirect.clicks} clicks) #{redirect.url}"
+    "*#{redirect.key}* (#{redirect.clicks} clicks): #{redirect.url}"
 
   formatRedirects = (redirects) ->
     message = "*Redirects:*"
