@@ -24,7 +24,7 @@ Set the following environment variables to interact with redisred:
   - e.g. `https://go.hackmit.org`
 - `HUBOT_REDISRED_TOKEN` The redisred API token.
 - `HUBOT_REDISRED_PREFIX` The prefix to auto-expand links
-  - e.g. `go` here will expand the chat message `go/redisred` into `https://go.hackmit.org/redisred`
+  - e.g. `blah` here will expand the chat message `blah/redisred` into `https://go.hackmit.org/redisred`
 
 ## License
 
