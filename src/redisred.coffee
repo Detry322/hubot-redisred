@@ -121,7 +121,7 @@ module.exports = (robot) ->
     redirects = []
     prefix = config('prefix')
     for key, value of cache
-      if ///\b#{prefix}/#{key}\b///i.test res.message.text
+      if ///(^|\s)#{prefix}/#{key}($|\s)///i.test res.message.text
         redirects.push value
     if config('prefix') and redirects.length != 0
       res.send formatShortlinks(redirects)
